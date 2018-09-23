@@ -24,6 +24,7 @@ class RankAnalyzer():
 		leaders = self._lf.fetch_weekly_leaders(week, position)
 
 		errors = {}
+		# I use mean squared error as my error estimate
 		for analyst in settings.ANALYSTS:
 			total_error = 0
 
@@ -34,7 +35,7 @@ class RankAnalyzer():
 				try:
 					analyst_rank = predicted_rank.iloc[0][analyst]
 					total_error += ((analyst_rank - rank) ** 2)
-				except:
+				except IndexError:
 					max_rank = settings.MAX_RANKS[position]
 					total_error += ((max_rank - rank) ** 2)
 			mse = total_error / len(leaders)
