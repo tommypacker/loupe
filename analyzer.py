@@ -1,8 +1,9 @@
 import operator
 import numpy as np
-
 import settings
 
+from datetime import datetime
+from dateutil import rrule
 from rankings_fetcher import RankingsFetcher
 from leaders_fetcher import LeadersFetcher
 
@@ -12,6 +13,7 @@ class RankAnalyzer():
 		self._league_id = config['league_id']
 		self._rf = RankingsFetcher(self._league_id)
 		self._lf = LeadersFetcher(self._league_id)
+		self._latest_week = self._find_latest_week()
 
 	def get_ranking_errors(self, week, position):
 		if not self._is_valid_week(week):
@@ -24,7 +26,7 @@ class RankAnalyzer():
 		leaders = self._lf.fetch_weekly_leaders(week, position)
 
 		errors = {}
-		# I use mean squared error as my error estimate
+		# Use mean squared error as the error estimate
 		for analyst in settings.ANALYSTS:
 			total_error = 0
 
@@ -43,14 +45,18 @@ class RankAnalyzer():
 
 		return sorted(errors.items(), key=operator.itemgetter(1))
 
-	# TODO: Find current week in season as upper bound
 	def _is_valid_week(self, week):
-		max_week = 17
 		try:
 			week_val = int(week)
-			return week_val > 0 and week_val <= max_week
+			return week_val > 0 and week_val <= self._latest_week
 		except ValueError:
 			return False
+
+	def _find_latest_week(self):
+		start_date = datetime.strptime(settings.SEASON_START, "%b %d %Y")
+		weeks = rrule.rrule(rrule.WEEKLY, dtstart=start_date, until=datetime.now())
+		num_weeks = weeks.count()
+		return num_weeks
 
 	def _is_valid_position(self, position):
 		try:

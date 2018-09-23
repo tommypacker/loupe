@@ -28,7 +28,7 @@ class RankingsFetcher():
 			}
 			r = requests.get('http://games.espn.com/ffl/freeagency', params=params)
 			position_df = self._format_data(r, position)
-			df = df.append(position_df)
+			df = df.append(position_df, sort=False)
 
 		return PlayerRankings(df)
 

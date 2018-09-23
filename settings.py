@@ -9,3 +9,6 @@ POSITIONS = [0, 2, 4, 6, 16, 17]
 
 # Mapping of the max rank + 1 for all the different positions
 MAX_RANKS = {0: 26, 2: 51, 4: 51, 6: 26, 16: 31, 17: 21}
+
+# Season Start Date
+SEASON_START = "Sep 10 2018"
