@@ -1,16 +1,16 @@
 import operator
 import numpy as np
-import settings
+import rankr.constants as constants
 
 from datetime import datetime
 from dateutil import rrule
-from rankings_fetcher import RankingsFetcher
-from leaders_fetcher import LeadersFetcher
+from rankr.fetchers.rankings_fetcher import RankingsFetcher
+from rankr.fetchers.leaders_fetcher import LeadersFetcher
 
 
-class RankAnalyzer():
-	def __init__(self, config):
-		self._league_id = config['league_id']
+class Analyzer():
+	def __init__(self, league_id):
+		self._league_id = league_id
 		self._rf = RankingsFetcher(self._league_id)
 		self._lf = LeadersFetcher(self._league_id)
 		self._latest_week = self._find_latest_week()
@@ -27,7 +27,7 @@ class RankAnalyzer():
 
 		errors = {}
 		# Use mean squared error as the error estimate
-		for analyst in settings.ANALYSTS:
+		for analyst in constants.ANALYSTS:
 			total_error = 0
 
 			position_ranks = data.get_position_rankings_by_analyst(position, analyst)
@@ -38,12 +38,12 @@ class RankAnalyzer():
 					analyst_rank = predicted_rank.iloc[0][analyst]
 					total_error += ((analyst_rank - rank) ** 2)
 				except IndexError:
-					max_rank = settings.MAX_RANKS[position]
+					max_rank = constants.MAX_RANKS[position]
 					total_error += ((max_rank - rank) ** 2)
 			mse = total_error / len(leaders)
 			errors[analyst] = mse
 
-		return sorted(errors.items(), key=operator.itemgetter(1))
+		return errors
 
 	def _is_valid_week(self, week):
 		try:
@@ -53,7 +53,7 @@ class RankAnalyzer():
 			return False
 
 	def _find_latest_week(self):
-		start_date = datetime.strptime(settings.SEASON_START, "%b %d %Y")
+		start_date = datetime.strptime(constants.SEASON_START, "%b %d %Y")
 		weeks = rrule.rrule(rrule.WEEKLY, dtstart=start_date, until=datetime.now())
 		num_weeks = weeks.count()
 		return num_weeks
@@ -61,6 +61,6 @@ class RankAnalyzer():
 	def _is_valid_position(self, position):
 		try:
 			position_val = int(position)
-			return position_val in settings.POSITIONS
+			return position_val in constants.POSITIONS
 		except ValueError:
 			return False
