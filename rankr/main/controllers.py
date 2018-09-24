@@ -1,9 +1,11 @@
-from flask import current_app, Blueprint
+from flask import current_app, jsonify, Blueprint
 from rankr.analyzer import Analyzer
+from rankr.dbconnector import db
+
 
 main = Blueprint('main', __name__)
 
 @main.route('/')
 def index():
 	a = Analyzer(current_app.config["LEAGUE_ID"])
-	return "Welcome to rankr"
+	return jsonify(a.get_ranking_errors(1, 2))
