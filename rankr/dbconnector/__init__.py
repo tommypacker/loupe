@@ -1,1 +1,1 @@
-from .db import client
+from .db import MongoConnector

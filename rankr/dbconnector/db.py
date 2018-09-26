@@ -1,4 +1,6 @@
 from pymongo import MongoClient
 
-client = MongoClient('localhost', 27017)
-db = client.rankr
+class MongoConnector():
+    def __init__(self):
+        self.client = MongoClient('localhost', 27017)
+        self.db = self.client.rankr

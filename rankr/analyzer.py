@@ -1,24 +1,48 @@
+import json
 import operator
 import numpy as np
 import rankr.constants as constants
 
 from datetime import datetime
 from dateutil import rrule
+from bson import json_util
 from rankr.fetchers.rankings_fetcher import RankingsFetcher
 from rankr.fetchers.leaders_fetcher import LeadersFetcher
 
 
 class Analyzer():
-	def __init__(self, league_id):
+	def __init__(self, league_id, db_connector):
 		self._league_id = league_id
 		self._rf = RankingsFetcher(self._league_id)
 		self._lf = LeadersFetcher(self._league_id)
 		self._latest_week = self._find_latest_week()
+		self._db = db_connector.db
 
-	def get_weekly_ranking_errors(self, week):
+	def get_aggregated_analyst_errors(self, week):
+		stats = self._get_weekly_ranking_errors(week)
+		aggregated_stats = {}
+		for stat in stats.values():
+			for analyst, error in stat.items():
+				if analyst not in aggregated_stats:
+					aggregated_stats[analyst] = 0
+
+				aggregated_stats[analyst] += error
+		return aggregated_stats
+
+	def get_all_analyst_errors(self, week):
+		return self._get_weekly_ranking_errors(week)
+
+	def _get_weekly_ranking_errors(self, week):
 		if not self._is_valid_week(week):
 			raise ValueError("Invalid Week Provided")
 
+		# Check to see if data exists
+		stat_collection = self._db[str(week)]
+		cursor = stat_collection.find({}, {'_id': False})
+		if cursor.count() > 0:
+			return cursor[0]
+
+		# Retrieve data if it doesn't exist
 		data = self._rf.fetch_rankings_by_week(week)
 		weekly_errors = {}
 
@@ -42,8 +66,12 @@ class Analyzer():
 				rmse = np.sqrt(total_error / len(leaders))
 				errors[analyst] = rmse
 
-			weekly_errors[position] = self._get_nrmsd(errors)
+			position_name = constants.POSITION_MAP[position]
+			weekly_errors[position_name] = self._get_nrmsd(errors)
 
+		# Persist data
+		stat_collection.insert(weekly_errors)
+		weekly_errors.pop('_id', None)
 		return weekly_errors
 
 	# Calculate normalized root mean square deviation
