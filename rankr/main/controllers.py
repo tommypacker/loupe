@@ -8,4 +8,4 @@ main = Blueprint('main', __name__)
 @main.route('/')
 def index():
 	a = Analyzer(current_app.config["LEAGUE_ID"])
-	return jsonify(a.get_ranking_errors(1, 2))
+	return jsonify(a.get_weekly_ranking_errors(2))
