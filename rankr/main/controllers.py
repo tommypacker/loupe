@@ -20,6 +20,12 @@ def all_stats(week):
 	res = a.get_all_analyst_errors(week)
 	return jsonify(res)
 
+@main.route('/stats/season/')
+def aggregated_season_stats():
+	a = Analyzer(current_app.config["LEAGUE_ID"], rankrDB)
+	res = a.get_aggregated_season_stats()
+	return jsonify(res)
+
 @main.route('/stats/<int:week>/<int:position>/')
 def position_stats(week, position):
 	a = Analyzer(current_app.config["LEAGUE_ID"], rankrDB)
@@ -27,12 +33,8 @@ def position_stats(week, position):
 	position = constants.POSITION_MAP[position]
 	return jsonify(res[position])
 
-@main.route('/stats/aggregated/<int:week>/')
+@main.route('/stats/season/<int:week>/')
 def aggregated_stats(week):
 	a = Analyzer(current_app.config["LEAGUE_ID"], rankrDB)
 	res = a.get_aggregated_analyst_errors(week)
 	return jsonify(res)
-
-@main.route('/stats/aggregated/season/')
-def aggregated_season_stats():
-	return "Season"
