@@ -1,13 +1,24 @@
 import requests
 import pandas as pd
 import numpy as np
-import rankr.constants as constants
+import constants
 
 from bs4 import BeautifulSoup
-from rankr.models.player_rankings import PlayerRankings
 
 
 class RankingsFetcher():
+	class Rankings():
+		def __init__(self, df):
+			self._df = df
+
+		def get_position_rankings_by_analyst(self, position, analyst):
+			analyst = analyst.upper()
+			if analyst not in constants.ANALYSTS:
+				raise ValueError("Invalid analyst provided")
+
+			position_df = self._df.loc[self._df['POSITION'] == position]
+			return position_df.sort_values(by=[analyst])[['PLAYER', analyst]]
+
 	def __init__(self, league_id):
 		self._league_id = league_id
 
@@ -30,7 +41,7 @@ class RankingsFetcher():
 			position_df = self._format_data(r, position)
 			df = df.append(position_df, sort=False)
 
-		return PlayerRankings(df)
+		return self.Rankings(df)
 
 	def _format_data(self, response, position):
 		# Read raw response into pandas

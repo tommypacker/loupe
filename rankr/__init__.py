@@ -1,10 +1,12 @@
 from flask import Flask
-from rankr.main.controllers import main
+from config import config
 
-
-def create_app(config):
+def create_app():
 	app = Flask(__name__)
 	app.config["DEBUG"] = config["debug"]
 	app.config["LEAGUE_ID"] = config["league_id"]
-	app.register_blueprint(main, url_prefix='/')
 	return app
+
+app = create_app()
+
+from rankr import routes
