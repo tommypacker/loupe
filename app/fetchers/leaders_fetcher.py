@@ -22,8 +22,8 @@ class LeadersFetcher():
 		}
 		r = requests.get('http://games.espn.com/ffl/leaders', params=params)
 		data = self._format_data(r)
-		player_list = data.values.ravel()
-		return player_list
+		leaders = data.values.ravel()
+		return leaders
 
 	def _format_data(self, response):
 		# Read raw response into pandas

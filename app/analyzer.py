@@ -12,66 +12,104 @@ from rankr.fetchers.leaders_fetcher import LeadersFetcher
 
 
 class Analyzer():
-	def __init__(self, league_id, db_connector):
+	def __init__(self, league_id, dbs):
 		self._league_id = league_id
 		self._rf = RankingsFetcher(self._league_id)
 		self._lf = LeadersFetcher(self._league_id)
 		self._latest_week = self._find_latest_week()
-		self._db = db_connector.db
+		self._db = db
 
-	def get_all_analyst_errors(self, week):
+	def get_weekly_individual_errors(self, week):
+		"""
+		Returns the individual errors for each position for each analyst for a given week
+		"""
 		return self._get_weekly_ranking_errors(week)
 
-	def get_aggregated_analyst_errors(self, week):
-		db_key = "aggregated_analyst_stats_{}".format(week)
-		aggregated_analyst_stats = self._db[db_key]
-		cursor = aggregated_analyst_stats.find({}, {'_id': False})
+	def get_season_individual_errors(self):
+		"""
+		Returns the total error each analyst has accrued for each position so far in the season
+		"""
+		db_key = "season_individual_errors_{}".format(self._latest_week)
+		individual_errors = self._db[db_key]
+		cursor = individual_errors.find({}, {'_id': False})
 		if cursor.count() > 0:
 			return cursor[0]
 
-		stats = self._get_weekly_ranking_errors(week)
-		aggregated_stats = {}
-
-		for stat in stats.values():
-			for analyst, error in stat.items():
-				if analyst not in aggregated_stats:
-					aggregated_stats[analyst] = 0
-				aggregated_stats[analyst] += error
-
-		aggregated_analyst_stats.insert(aggregated_stats)
-		aggregated_stats.pop('_id', None)
-		return aggregated_stats
-
-	def get_aggregated_season_stats(self):
-		db_key = "aggregated_position_stats_{}".format(self._latest_week)
-		aggregated_season_stats = self._db[db_key]
-		cursor = aggregated_season_stats.find({}, {'_id': False})
-		if cursor.count() > 0:
-			return cursor[0]
-
-		total_stats = {}
+		season_errors = {}
 		for week in range(1, self._latest_week+1):
-			weekly_stats = self._get_weekly_ranking_errors(week)
-			# Combine stats
-			if not bool(total_stats):
-				total_stats = copy.deepcopy(weekly_stats)
+			weekly_errors = self._get_weekly_ranking_errors(week)
+			if not bool(season_errors):
+				season_errors = copy.deepcopy(weekly_errors)
 			else:
-				for position in total_stats.keys():
-					for analyst in total_stats[position]:
-						total_stats[position][analyst] += weekly_stats[position][analyst]
+				for position in season_errors.keys():
+					for analyst in constants.ANALYSTS:
+						season_errors[position][analyst] += weekly_errors[position][analyst]
 
-		aggregated_season_stats.insert(total_stats)
-		total_stats.pop('_id', None)
-		return total_stats
+		individual_errors.insert(aggregated_errors)
+		individual_errors.pop('_id', None)
+		return individual_errors
+
+	def get_weekly_summed_errors(self, week):
+		"""
+		Returns the total error (sum over all positions) for each analyst for a given week
+		"""
+		db_key = "summed_errors_{}".format(week)
+
+		# Check to see if errors have already been cached
+		summed_errors = self._db[db_key]
+		cursor = summed_errors.find({}, {'_id': False})
+		if cursor.count() > 0:
+			return cursor[0]
+
+		# Sum total errors for all positions for each analyst
+		errors = self._get_weekly_ranking_errors(week)
+		aggregated_errors = {}
+		for val in errors.values():
+			for analyst, error in val.items():
+				if analyst not in aggregated_errors:
+					aggregated_errors[analyst] = 0
+				aggregated_errors[analyst] += error
+
+		summed_errors.insert(aggregated_errors)
+		summed_errors.pop('_id', None)
+		return summed_errors
+
+	def get_season_summed_errors(self):
+		"""
+		Returns the total error (sum over all positions) for each analyst so far in the season
+		"""
+		db_key = "season_summed_errors_{}".format(week)
+
+		# Check to see if aggregated errors have already been cached
+		season_summed_errors = self._db[db_key]
+		cursor = season_summed_errors.find({}, {'_id': False})
+		if cursor.count() > 0:
+			return cursor[0]
+
+		season_errors = {}
+		for week in range(1, self._latest_week+1):
+			weekly_errors = self._get_weekly_ranking_errors(week)
+			for val in weekly_errors.values():
+				for analyst, error in val.items():
+					if analyst not in season_errors:
+						season_errors[analyst] = 0
+					season_errors[analyst] += error
+
+		season_summed_errors.insert(season_errors)
+		season_summed_errors.pop('_id', None)
+		return season_summed_errors
 
 	def _get_weekly_ranking_errors(self, week):
+		"""
+		Retrieves the individual errors of all positions for all analysts for a given week
+		"""
 		if not self._is_valid_week(week):
 			raise ValueError("Invalid Week Provided")
 
 		# Check to see if data exists
 		db_key = self._get_db_key(week)
-		stat_collection = self._db[db_key]
-		cursor = stat_collection.find({}, {'_id': False})
+		error_collection = self._db[db_key]
+		cursor = error_collection.find({}, {'_id': False})
 		if cursor.count() > 0:
 			return cursor[0]
 
@@ -103,7 +141,7 @@ class Analyzer():
 			weekly_errors[position_name] = self._get_nrmsd(errors)
 
 		# Persist data
-		stat_collection.insert(weekly_errors)
+		error_collection.insert(weekly_errors)
 		weekly_errors.pop('_id', None)
 		return weekly_errors
 
