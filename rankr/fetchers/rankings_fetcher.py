@@ -1,6 +1,5 @@
 import requests
 import pandas as pd
-import numpy as np
 import constants
 
 from bs4 import BeautifulSoup

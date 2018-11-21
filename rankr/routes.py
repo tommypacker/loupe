@@ -1,6 +1,4 @@
-import constants
-
-from flask import current_app, jsonify, Blueprint
+from flask import current_app, jsonify
 
 from rankr import app
 from rankr.analyzer import Analyzer

@@ -1,12 +1,9 @@
 import copy
-import json
-import operator
 import numpy as np
 import constants
 
 from datetime import datetime
 from dateutil import rrule
-from bson import json_util
 from rankr.fetchers.rankings_fetcher import RankingsFetcher
 from rankr.fetchers.leaders_fetcher import LeadersFetcher
 
