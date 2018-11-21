@@ -1,7 +1,7 @@
 import requests
 import pandas as pd
 import numpy as np
-import rankr.constants as constants
+import constants
 
 from bs4 import BeautifulSoup
 
@@ -41,7 +41,7 @@ class RankingsFetcher():
 			position_df = self._format_data(r, position)
 			df = df.append(position_df, sort=False)
 
-		return Rankings(df)
+		return self.Rankings(df)
 
 	def _format_data(self, response, position):
 		# Read raw response into pandas

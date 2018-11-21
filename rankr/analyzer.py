@@ -2,7 +2,7 @@ import copy
 import json
 import operator
 import numpy as np
-import rankr.constants as constants
+import constants
 
 from datetime import datetime
 from dateutil import rrule
@@ -12,7 +12,7 @@ from rankr.fetchers.leaders_fetcher import LeadersFetcher
 
 
 class Analyzer():
-	def __init__(self, league_id, dbs):
+	def __init__(self, league_id, db):
 		self._league_id = league_id
 		self._rf = RankingsFetcher(self._league_id)
 		self._lf = LeadersFetcher(self._league_id)
@@ -45,9 +45,9 @@ class Analyzer():
 					for analyst in constants.ANALYSTS:
 						season_errors[position][analyst] += weekly_errors[position][analyst]
 
-		individual_errors.insert(aggregated_errors)
-		individual_errors.pop('_id', None)
-		return individual_errors
+		individual_errors.insert(season_errors)
+		season_errors.pop('_id', None)
+		return season_errors
 
 	def get_weekly_summed_errors(self, week):
 		"""
@@ -71,14 +71,14 @@ class Analyzer():
 				aggregated_errors[analyst] += error
 
 		summed_errors.insert(aggregated_errors)
-		summed_errors.pop('_id', None)
-		return summed_errors
+		aggregated_errors.pop('_id', None)
+		return aggregated_errors
 
 	def get_season_summed_errors(self):
 		"""
 		Returns the total error (sum over all positions) for each analyst so far in the season
 		"""
-		db_key = "season_summed_errors_{}".format(week)
+		db_key = "season_summed_errors_{}".format(self._latest_week)
 
 		# Check to see if aggregated errors have already been cached
 		season_summed_errors = self._db[db_key]
@@ -88,16 +88,15 @@ class Analyzer():
 
 		season_errors = {}
 		for week in range(1, self._latest_week+1):
-			weekly_errors = self._get_weekly_ranking_errors(week)
-			for val in weekly_errors.values():
-				for analyst, error in val.items():
-					if analyst not in season_errors:
-						season_errors[analyst] = 0
-					season_errors[analyst] += error
+			weekly_errors = self.get_weekly_summed_errors(week)
+			for analyst, error in weekly_errors.items():
+				if analyst not in season_errors:
+					season_errors[analyst] = 0
+				season_errors[analyst] += error
 
 		season_summed_errors.insert(season_errors)
-		season_summed_errors.pop('_id', None)
-		return season_summed_errors
+		season_errors.pop('_id', None)
+		return season_errors
 
 	def _get_weekly_ranking_errors(self, week):
 		"""
