@@ -42,6 +42,7 @@ class Analyzer():
 					for analyst in constants.ANALYSTS:
 						season_errors[position][analyst] += weekly_errors[position][analyst]
 
+		# Cache Results
 		individual_errors.insert(season_errors)
 		season_errors.pop('_id', None)
 		return season_errors
@@ -67,6 +68,7 @@ class Analyzer():
 					aggregated_errors[analyst] = 0
 				aggregated_errors[analyst] += error
 
+		# Cache results
 		summed_errors.insert(aggregated_errors)
 		aggregated_errors.pop('_id', None)
 		return aggregated_errors
@@ -91,6 +93,7 @@ class Analyzer():
 					season_errors[analyst] = 0
 				season_errors[analyst] += error
 
+		# Cache Results
 		season_summed_errors.insert(season_errors)
 		season_errors.pop('_id', None)
 		return season_errors
@@ -136,7 +139,7 @@ class Analyzer():
 			position_name = constants.POSITION_MAP[position]
 			weekly_errors[position_name] = self._get_nrmsd(errors)
 
-		# Persist data
+		# Cache Results
 		error_collection.insert(weekly_errors)
 		weekly_errors.pop('_id', None)
 		return weekly_errors

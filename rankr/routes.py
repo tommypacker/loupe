@@ -1,10 +1,14 @@
-from flask import current_app, jsonify
+from flask import current_app, jsonify, render_template
 
 from rankr import app
 from rankr.analyzer import Analyzer
 from rankr.db import MongoConnector
 
 rankrDB = MongoConnector().db
+
+@app.route('/')
+def home():
+	return render_template('index.html')
 
 @app.route('/stats/<int:week>/')
 def weekly_individual_stats(week):
