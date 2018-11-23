@@ -8,11 +8,34 @@
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://d3js.org/d3.v5.min.js"></script>
+  <script
+    src="https://code.jquery.com/jquery-3.3.1.min.js"
+    integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8="
+    crossorigin="anonymous">
+  </script>
 </head>
 
 <body>
     <p>Welcome to rankr!</p>
+    <div>
+        <select id="weekSelect">
+            {% for week in range(1, latest_week) %}
+                <option value={{week}}>Week {{week}}
+            {% endfor %}
+            <option value={{latest_week}} selected="selected">Week {{latest_week}}
+        </select>
+    </div>
     <script src="/static/js/charts.js"></script>
+    <script>
+        $(document).ready(function() {
+            loadChart(parseInt("{{latest_week}}"));
+        });
+
+        $(document).on("change", "#weekSelect", function(){
+            let selectedWeek = $(this).find("option:selected").attr('value');
+            loadChart(parseInt(selectedWeek));
+        });
+    </script>
 </body>
 
 </html>

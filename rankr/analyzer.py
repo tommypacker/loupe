@@ -16,6 +16,9 @@ class Analyzer():
 		self._latest_week = self._find_latest_week()
 		self._db = db
 
+	def get_latest_week(self):
+		return self._latest_week
+
 	def get_weekly_individual_errors(self, week):
 		"""
 		Returns the individual errors for each position for each analyst for a given week

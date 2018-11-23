@@ -8,7 +8,8 @@ rankrDB = MongoConnector().db
 
 @app.route('/')
 def home():
-	return render_template('index.html')
+	a = Analyzer(current_app.config["LEAGUE_ID"], rankrDB)
+	return render_template('index.html', latest_week=a.get_latest_week())
 
 @app.route('/stats/<int:week>/')
 def weekly_individual_stats(week):

@@ -8,7 +8,7 @@ var x1 = d3.scaleBand();
 var y = d3.scaleLinear()
     .range([height, 0]);
 const colors = d3.scaleOrdinal()
-    .range(["#ca0020","#f4a582","#d5d5d5","#92c5de","#0571b0", "#556B2F"]);
+    .range(["#ca0020","#f4a582","#d5d5d5","#92c5de","#0571b0", "#90EE90"]);
 
 var svg = d3.select('body').append("svg")
     .attr("width", width + margin.left + margin.right)
@@ -16,16 +16,21 @@ var svg = d3.select('body').append("svg")
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
 
-d3.json("http://localhost:5000/stats/1/")
-    .then(function(data) {
+function loadChart(week) {
+    // Remove existing charts
+    svg.selectAll("*").remove();
+
+    url = "http://localhost:5000/stats/" + week + "/"
+    d3.json(url).then(function(data) {
         var positions = Object.keys(data);
         var analysts = Object.keys(data.QB);
         data = formatData(data, positions, analysts);
+        var minVal = d3.min(formattedData, function(pos) { return d3.min(pos.analysts, function(d) { return d.value; }); });
         var maxVal = d3.max(formattedData, function(pos) { return d3.max(pos.analysts, function(d) { return d.value; }); });
 
         x0.domain(positions);
         x1.domain(analysts).range([0, x0.bandwidth()]);
-        y.domain([0.9, maxVal + 0.02]);
+        y.domain([minVal - 0.02, maxVal + 0.02]);
 
         var xAxis = d3.axisBottom().scale(x0).tickSize(0);
         var yAxis = d3.axisLeft().scale(y);
@@ -89,6 +94,7 @@ d3.json("http://localhost:5000/stats/1/")
 
         legend.style("opacity","1");
     });
+}
 
 function formatData(data, positions, analysts) {
     formattedData = []
