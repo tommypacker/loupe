@@ -4,7 +4,7 @@ const margin = {top: 20, right: 20, bottom: 30, left: 40};
 const width = 960 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const colors = d3.scaleOrdinal()
-    .range(["#ca0020","#f4a582","#d5d5d5","#92c5de","#0571b0", "#90EE90"]);
+    .range(["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"]);
 
 // Create basis for bar charts
 var x0 = d3.scaleBand()
