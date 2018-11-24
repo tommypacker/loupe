@@ -19,21 +19,21 @@
     <p>Welcome to rankr!</p>
     <div>
         <select id="weekSelect">
-            {% for week in range(1, latest_week) %}
+            {% for week in range(1, latest_week+1) %}
                 <option value={{week}}>Week {{week}}
             {% endfor %}
-            <option value={{latest_week}} selected="selected">Week {{latest_week}}
+            <option value="season" selected="selected">Season Avg
         </select>
     </div>
     <script src="/static/js/charts.js"></script>
     <script>
         $(document).ready(function() {
-            loadChart(parseInt("{{latest_week}}"));
+            loadChart("season");
         });
 
         $(document).on("change", "#weekSelect", function(){
             let selectedWeek = $(this).find("option:selected").attr('value');
-            loadChart(parseInt(selectedWeek));
+            loadChart(selectedWeek);
         });
     </script>
 </body>

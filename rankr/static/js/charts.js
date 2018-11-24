@@ -1,23 +1,41 @@
+"use strict";
 const POSITIONS = ["QB", "RB", "WR", "TE", "DST", "K"];
-const ANALYSTS = ["BERRY", "KARABELL", "YATES", "COCKROFT", "CLAY", "BELL"]
+const ANALYSTS = ["BERRY", "KARABELL", "YATES", "COCKROFT", "CLAY", "BELL"];
+const PALETTE = ["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"];
 const margin = {top: 20, right: 20, bottom: 30, left: 40};
 const width = 960 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
-const colors = d3.scaleOrdinal()
-    .range(["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"]);
+const colors = d3.scaleOrdinal().range(PALETTE);
 
-// Create basis for bar charts
-var x0 = d3.scaleBand()
-    .range([0, width])
-    .paddingInner(0.2);
+// Create bar chart elements
+var x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
 var x1 = d3.scaleBand();
-var y = d3.scaleLinear()
-    .range([height, 0]);
-var svg = d3.select('body').append("svg")
+var y = d3.scaleLinear().range([height, 0]);
+var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
     .attr("transform", "translate(" + margin.left + "," + margin.top + ")");
+
+/*
+Formats data to be an array of objects containing a key for
+the position and an object containing the errors from each analyst.
+*/
+function formatData(data) {
+    var formattedData = [];
+    POSITIONS.map(function (pos) {
+        var newEntry = {};
+        newEntry.position = pos;
+        newEntry.analysts = [];
+        ANALYSTS.map(function (analyst) {
+            newEntry.analysts.push(
+                {analyst: analyst, value: data[pos][analyst]}
+            );
+        });
+        formattedData.push(newEntry);
+    });
+    return formattedData;
+}
 
 /*
 Creates a grouped bar chart that displays the errors for each analyst
@@ -28,14 +46,18 @@ function loadChart(week) {
     // Remove existing data
     svg.selectAll("*").remove();
 
-    url = "http://localhost:5000/stats/" + week + "/"
+    var url = "http://localhost:5000/stats/" + week + "/";
     d3.json(url).then(function(data) {
         data = formatData(data);
-        var minVal = d3.min(formattedData, function(pos) { return d3.min(pos.ANALYSTS, function(d) { return d.value; }); });
-        var maxVal = d3.max(formattedData, function(pos) { return d3.max(pos.ANALYSTS, function(d) { return d.value; }); });
+        var minVal = d3.min(data, function(pos) {
+            return d3.min(pos.analysts, function(d) { return d.value; });
+        });
+        var maxVal = d3.max(data, function(pos) {
+            return d3.max(pos.analysts, function(d) { return d.value; });
+        });
 
         x0.domain(POSITIONS);
-        x1.domain(ANALYSTS).range([0, x0.bandwidth()]);
+        x1.domain(ANALYSTS).range([15, x0.bandwidth()]);
         y.domain([minVal - 0.02, maxVal + 0.02]);
 
         var xAxis = d3.axisBottom().scale(x0).tickSize(0);
@@ -48,70 +70,62 @@ function loadChart(week) {
 
         svg.append("g")
             .attr("class", "y axis")
-            .style('opacity','0')
+            .style("opacity","0")
             .call(yAxis)
-        .append("text")
+            .append("text")
             .attr("transform", "rotate(-90)")
             .attr("y", 6)
             .attr("dy", ".71em")
             .style("text-anchor", "end")
-            .style('font-weight','bold')
+            .style("font-weight","bold")
             .text("Value");
 
-        svg.select('.y').style('opacity','1');
+        // Set y axis
+        svg.select(".y").style("opacity","1");
 
+        // Load data into bar chart
         var slice = svg.selectAll(".slice")
-            .data(formattedData)
+            .data(data)
             .enter().append("g")
             .attr("class", "g")
-            .attr("transform",function(d) { return "translate(" + x0(d.position) + ",0)"; });
+            .attr("transform",function(d) {
+                return "translate(" + x0(d.position) + ",0)";
+            });
 
         slice.selectAll("g")
-            .data(function(d) { return d.ANALYSTS; })
-        .enter().append("rect")
+            .data(function(d) { return d.analysts; })
+            .enter().append("rect")
             .attr("width", x1.bandwidth())
             .attr("x", function(d) { return x1(d.analyst); })
-            .style("fill", function(d) { return colors(d.analyst) })
+            .style("fill", function(d) { return colors(d.analyst); });
 
         slice.selectAll("rect")
             .attr("y", function(d) { return y(d.value); })
             .attr("height", function(d) { return height - y(d.value); });
 
-        //Legend
+        // Legend
         var legend = svg.selectAll(".legend")
-        .data(formattedData[0].ANALYSTS.map(function(d) { return d.analyst; }))
-        .enter().append("g")
-        .attr("class", "legend")
-        .attr("transform", function(d,i) { return "translate(0," + i * 20 + ")"; })
-        .style("opacity","0");
+            .data(data[0].analysts.map(function(d) { return d.analyst; }))
+            .enter().append("g")
+            .attr("class", "legend")
+            .attr("transform", function(d,i)
+                { return "translate(0," + i * 20 + ")";
+            })
+            .style("opacity","0");
 
         legend.append("rect")
-        .attr("x", width - 18)
-        .attr("width", 18)
-        .attr("height", 18)
-        .style("fill", function(d) { return colors(d); });
+            .attr("x", width - 18)
+            .attr("width", 18)
+            .attr("height", 18)
+            .style("fill", function(d) { return colors(d); });
 
         legend.append("text")
-        .attr("x", width - 24)
-        .attr("y", 9)
-        .attr("dy", ".35em")
-        .style("text-anchor", "end")
-        .text(function(d) {return d; });
+            .attr("x", width - 24)
+            .attr("y", 9)
+            .attr("dy", ".35em")
+            .style("text-anchor", "end")
+            .text(function(d) {return d; });
 
         legend.style("opacity","1");
     });
-}
-
-function formatData(data) {
-    formattedData = []
-    POSITIONS.map(function (pos) {
-        var newEntry = {};
-        newEntry["position"] = pos;
-        newEntry["ANALYSTS"] = [];
-        ANALYSTS.map(function (analyst) {
-            newEntry["ANALYSTS"].push({analyst: analyst, value: data[pos][analyst]});
-        });
-        formattedData.push(newEntry);
-    });
-    return formattedData;
 }

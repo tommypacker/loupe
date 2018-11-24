@@ -45,6 +45,11 @@ class Analyzer():
 					for analyst in constants.ANALYSTS:
 						season_errors[position][analyst] += weekly_errors[position][analyst]
 
+		# Normalize Results
+		for _, errors in season_errors.items():
+			for analyst in errors.keys():
+				errors[analyst] /= self._latest_week 
+
 		# Cache Results
 		individual_errors.insert(season_errors)
 		season_errors.pop('_id', None)
