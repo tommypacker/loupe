@@ -23,10 +23,11 @@
 <body>
     <div class="content">
         <div class="title">
-            <h1>rankr</h1>
+            <h1 id="header">rankr</h1>
+            <p>By Tommy Yu</p>
         </div>
-        <div>
-            <select id="weekSelect">
+        <div class="form-group">
+            <select class="form-control" id="weekSelect">
                 {% for week in range(1, latest_week+1) %}
                     <option value={{week}}>Week {{week}}
                 {% endfor %}

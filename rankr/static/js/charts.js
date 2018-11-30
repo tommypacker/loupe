@@ -2,7 +2,7 @@
 const POSITIONS = ["QB", "RB", "WR", "TE", "DST", "K"];
 const ANALYSTS = ["BERRY", "KARABELL", "YATES", "COCKROFT", "CLAY", "BELL"];
 const PALETTE = ["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"];
-const margin = {top: 20, right: 10, bottom: 30, left: 20};
+const margin = {top: 20, right: 30, bottom: 30, left: 30};
 const width = 960 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const colors = d3.scaleOrdinal().range(PALETTE);

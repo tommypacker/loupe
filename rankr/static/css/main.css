@@ -3,7 +3,20 @@ body {
     margin: 8px;
 }
 
+h1 {
+    font-size: 5em;
+}
+
 div.content {
     width: 100%;
     text-align: center;
+}
+
+.form-control {
+    margin: auto;
+    width: 20%;
+}
+
+#header {
+    line-height: 70px;
 }
