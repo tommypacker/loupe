@@ -7,10 +7,6 @@ const width = 960 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const colors = d3.scaleOrdinal().range(PALETTE);
 
-// Create bar chart elements
-var x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
-var x1 = d3.scaleBand();
-var y = d3.scaleLinear().range([height, 0]);
 var svg = d3.select("body").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
@@ -42,9 +38,14 @@ Creates a grouped bar chart that displays the errors for each analyst
 for each position in a given week. The lower the error, the better
 and analyst did in predicting how well a player did.
 */
-function loadChart(week) {
+function loadPositionsChart(week) {
     // Remove existing data
     svg.selectAll("*").remove();
+
+    // Create bar chart elements
+    var x0 = d3.scaleBand().range([0, width]).paddingInner(0.1);
+    var x1 = d3.scaleBand();
+    var y = d3.scaleLinear().range([height, 0]);
 
     var url = "http://localhost:5000/stats/" + week + "/";
     d3.json(url).then(function(data) {
@@ -127,5 +128,56 @@ function loadChart(week) {
             .text(function(d) {return d; });
 
         legend.style("opacity","1");
+    });
+}
+
+function loadSumsChart() {
+    svg.selectAll("*").remove();
+    var url = "http://localhost:5000/stats/sum/season/";
+    d3.json(url).then(function(data) {
+        var x1 = d3.scaleBand().range([15, width]).paddingInner(0.1);
+        var y = d3.scaleLinear().range([height, 0]);
+
+        var formattedData = []
+        const minVal = d3.min(d3.values(data));
+        const maxVal = d3.max(d3.values(data));
+        ANALYSTS.map(function (analyst) {
+            formattedData.push({analyst: analyst, value: data[analyst]});
+        });
+
+        x1.domain(ANALYSTS);
+        y.domain([minVal - 0.1, maxVal + 0.1]);
+        var xAxis = d3.axisBottom().scale(x1).tickSize(0);
+        var yAxis = d3.axisLeft().scale(y);
+
+        svg.append("g")
+            .attr("class", "x axis")
+            .attr("transform", "translate(0," + height + ")")
+            .call(xAxis);
+
+        svg.append("g")
+            .attr("class", "y axis")
+            .style("opacity","0")
+            .call(yAxis)
+            .append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 6)
+            .attr("dy", ".71em")
+            .style("text-anchor", "end")
+            .style("font-weight","bold")
+            .text("Value");
+
+        svg.select(".y").style("opacity","1");
+
+        // Load data into bar chart
+        svg.selectAll("bar")
+        .data(formattedData)
+        .enter().append("rect")
+        .style("fill", function(d) { return colors(d.analyst); })
+        .attr("x", function(d) { return x1(d.analyst); })
+        .attr("width", x1.bandwidth())
+        .attr("y", function(d) { return y(d.value); })
+        .attr("height", function(d) { return height - y(d.value); });
+
     });
 }

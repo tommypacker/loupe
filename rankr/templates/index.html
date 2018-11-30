@@ -23,17 +23,22 @@
                 <option value={{week}}>Week {{week}}
             {% endfor %}
             <option value="season" selected="selected">Season Avg
+            <option value="seasonTotals">Season Totals
         </select>
     </div>
     <script src="/static/js/charts.js"></script>
     <script>
         $(document).ready(function() {
-            loadChart("season");
+            loadPositionsChart("season");
         });
 
         $(document).on("change", "#weekSelect", function(){
             let selectedWeek = $(this).find("option:selected").attr('value');
-            loadChart(selectedWeek);
+            if (selectedWeek == "seasonTotals") {
+                loadSumsChart();
+            } else {
+                loadPositionsChart(selectedWeek);
+            }
         });
     </script>
 </body>
