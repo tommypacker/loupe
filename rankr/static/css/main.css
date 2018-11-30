@@ -1,0 +1,9 @@
+body { 
+    display: block;
+    margin: 8px;
+}
+
+div.content {
+    width: 100%;
+    text-align: center;
+}

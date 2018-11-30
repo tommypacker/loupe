@@ -2,12 +2,12 @@
 const POSITIONS = ["QB", "RB", "WR", "TE", "DST", "K"];
 const ANALYSTS = ["BERRY", "KARABELL", "YATES", "COCKROFT", "CLAY", "BELL"];
 const PALETTE = ["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"];
-const margin = {top: 20, right: 20, bottom: 30, left: 40};
+const margin = {top: 20, right: 10, bottom: 30, left: 20};
 const width = 960 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const colors = d3.scaleOrdinal().range(PALETTE);
 
-var svg = d3.select("body").append("svg")
+var svg = d3.select("div.chart").append("svg")
     .attr("width", width + margin.left + margin.right)
     .attr("height", height + margin.top + margin.bottom)
     .append("g")
@@ -131,6 +131,10 @@ function loadPositionsChart(week) {
     });
 }
 
+/*
+Creates a bar chart that displays the total error amassed over all
+positions for the season for each analyst
+*/
 function loadSumsChart() {
     svg.selectAll("*").remove();
     var url = "http://localhost:5000/stats/sum/season/";
@@ -171,13 +175,13 @@ function loadSumsChart() {
 
         // Load data into bar chart
         svg.selectAll("bar")
-        .data(formattedData)
-        .enter().append("rect")
-        .style("fill", function(d) { return colors(d.analyst); })
-        .attr("x", function(d) { return x1(d.analyst); })
-        .attr("width", x1.bandwidth())
-        .attr("y", function(d) { return y(d.value); })
-        .attr("height", function(d) { return height - y(d.value); });
+            .data(formattedData)
+            .enter().append("rect")
+            .style("fill", function(d) { return colors(d.analyst); })
+            .attr("x", function(d) { return x1(d.analyst); })
+            .attr("width", x1.bandwidth())
+            .attr("y", function(d) { return y(d.value); })
+            .attr("height", function(d) { return height - y(d.value); });
 
     });
 }
