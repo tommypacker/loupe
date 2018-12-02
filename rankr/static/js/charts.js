@@ -2,8 +2,8 @@
 const POSITIONS = ["QB", "RB", "WR", "TE", "DST", "K"];
 const ANALYSTS = ["BERRY", "KARABELL", "YATES", "COCKROFT", "CLAY", "BELL"];
 const PALETTE = ["#F8E9A1","#F76C6C", "#EEE5DE", "#A8D0E6","#374785","#24305E"];
-const margin = {top: 20, right: 30, bottom: 30, left: 30};
-const width = 960 - margin.left - margin.right;
+const margin = {top: 20, right: 40, bottom: 50, left: 55};
+const width = 1000 - margin.left - margin.right;
 const height = 500 - margin.top - margin.bottom;
 const colors = d3.scaleOrdinal().range(PALETTE);
 
@@ -67,11 +67,21 @@ function loadPositionsChart(week) {
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
+            .style("font-size", "14px")
             .call(xAxis);
+
+        svg.append("text")
+            .attr("transform",
+                  "translate(" + (width/2) + " ," + 
+                                 (height + margin.top + 10) + ")")
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text("Positions");
 
         svg.append("g")
             .attr("class", "y axis")
             .style("opacity","0")
+            .style("font-size", "12px")
             .call(yAxis)
             .append("text")
             .attr("transform", "rotate(-90)")
@@ -80,6 +90,15 @@ function loadPositionsChart(week) {
             .style("text-anchor", "end")
             .style("font-weight","bold")
             .text("Value");
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left - 5)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text("Weekly Errors");
 
         // Set y axis
         svg.select(".y").style("opacity","1");
@@ -157,11 +176,21 @@ function loadSumsChart() {
         svg.append("g")
             .attr("class", "x axis")
             .attr("transform", "translate(0," + height + ")")
+            .style("font-size", "14px")
             .call(xAxis);
+
+        svg.append("text")
+            .attr("transform",
+                  "translate(" + (width/2) + " ," + 
+                                 (height + margin.top + 10) + ")")
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text("Analysts");
 
         svg.append("g")
             .attr("class", "y axis")
             .style("opacity","0")
+            .style("font-size", "12px")
             .call(yAxis)
             .append("text")
             .attr("transform", "rotate(-90)")
@@ -169,7 +198,17 @@ function loadSumsChart() {
             .attr("dy", ".71em")
             .style("text-anchor", "end")
             .style("font-weight","bold")
+            .style("font-size", "14px")
             .text("Value");
+
+        svg.append("text")
+            .attr("transform", "rotate(-90)")
+            .attr("y", 0 - margin.left - 5)
+            .attr("x",0 - (height / 2))
+            .attr("dy", "1em")
+            .style("text-anchor", "middle")
+            .style("font-weight","bold")
+            .text("Accumulated Errors");  
 
         svg.select(".y").style("opacity","1");
 
