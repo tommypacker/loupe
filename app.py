@@ -1,1 +1,1 @@
-from rankr import app
+from loupe import app

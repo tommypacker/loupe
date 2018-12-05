@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="utf-8">
-  <title>rankr</title>
+  <title>ESPN Analyst Ranks</title>
   <meta name="author" content="">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -23,7 +23,7 @@
 <body>
     <div class="content">
         <div class="title">
-            <h1 id="header">ESPN Analyst Errors</h1>
+            <h1 id="header">ESPN Analyst Ranks</h1>
         </div>
         <div class="form-group">
             <select class="form-control" id="weekSelect">
@@ -35,6 +35,18 @@
             </select>
         </div>
         <div class="chart"></div>
+        <div class="description">
+            <p>
+                The y-axis of this plot represents the normalized root mean square error between an analyst's projected
+                rank, and the actual place a player finishes for a week. 
+                The actual numerical value of the y-axis is irrelevant, the more important factor to look at it is how well
+                an analyst does compared to his/her peers. The higher the value, the worse he/she did when making predictions.
+                More info on how these statistics were calculated can be found at the link at the bottom of the page.
+            </p>
+        </div>
+    </div>
+    <div class="footer">
+        <p>Made by Tommy Yu <a id="source" href="https://github.com/tommypacker/loupe">here</a></p>
     </div>
 
 
@@ -55,9 +67,6 @@
             document.activeElement.blur();
         });
     </script>
-    <div class="footer">
-        <p>Made by Tommy Yu <a id="source" href="https://github.com/tommypacker/rankr">here</a></p>
-    </div>
 </body>
 
 </html>

@@ -9,4 +9,4 @@ def create_app():
 
 app = create_app()
 
-from rankr import routes
+from loupe import routes

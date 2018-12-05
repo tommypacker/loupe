@@ -4,8 +4,8 @@ import constants
 
 from datetime import datetime
 from dateutil import rrule
-from rankr.fetchers.rankings_fetcher import RankingsFetcher
-from rankr.fetchers.leaders_fetcher import LeadersFetcher
+from loupe.fetchers.rankings_fetcher import RankingsFetcher
+from loupe.fetchers.leaders_fetcher import LeadersFetcher
 
 
 class Analyzer():

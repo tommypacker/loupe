@@ -25,6 +25,14 @@ div.content {
     text-align: center;
 }
 
+.description {
+    width: 60%;
+    margin: auto;
+    padding-top: 20px;
+    text-align: left;
+    font-style: italic;
+}
+
 #source:hover {
     text-decoration: none;
 }
