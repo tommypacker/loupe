@@ -12,6 +12,10 @@ div.content {
     text-align: center;
 }
 
+.title {
+    padding-bottom: 20px;
+}
+
 .form-control {
     margin: auto;
     width: 20%;

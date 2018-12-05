@@ -47,7 +47,7 @@ function loadPositionsChart(week) {
     var x1 = d3.scaleBand();
     var y = d3.scaleLinear().range([height, 0]);
 
-    var url = "http://localhost:5000/stats/" + week + "/";
+    var url = window.location + "stats/" + week + "/";
     d3.json(url).then(function(data) {
         data = formatData(data);
         var minVal = d3.min(data, function(pos) {
@@ -156,7 +156,7 @@ positions for the season for each analyst
 */
 function loadSumsChart() {
     svg.selectAll("*").remove();
-    var url = "http://localhost:5000/stats/sum/season/";
+    var url = window.location + "stats/sum/season/";
     d3.json(url).then(function(data) {
         var x1 = d3.scaleBand().range([15, width]).paddingInner(0.1);
         var y = d3.scaleLinear().range([height, 0]);
