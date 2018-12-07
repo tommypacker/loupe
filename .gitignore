@@ -4,4 +4,3 @@ env/
 lib/
 
 .DS_Store
-config.py
