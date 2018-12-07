@@ -1,4 +1,5 @@
 import copy
+import logging
 import numpy as np
 import constants
 
@@ -30,6 +31,7 @@ class Analyzer():
 		Returns the total error each analyst has accrued for each position so far in the season
 		"""
 		db_key = "season_individual_errors_{}".format(self._latest_week)
+		logging.info(db_key)
 		individual_errors = self._db[db_key]
 		cursor = individual_errors.find({}, {'_id': False})
 		if cursor.count() > 0:
@@ -45,6 +47,7 @@ class Analyzer():
 					for analyst in constants.ANALYSTS:
 						season_errors[position][analyst] += weekly_errors[position][analyst]
 
+		logging.info(season_errors)
 		# Normalize Results
 		for _, errors in season_errors.items():
 			for analyst in errors.keys():
@@ -53,6 +56,7 @@ class Analyzer():
 		# Cache Results
 		individual_errors.insert(season_errors)
 		season_errors.pop('_id', None)
+		logging.info(season_errors)
 		return season_errors
 
 	def get_weekly_summed_errors(self, week):
